@@ -5,7 +5,7 @@ classdef AsyncTaskConstants
         MESSAGE_TASK_ALREADY_STARTED = 'Task already started';
         MESSAGE_TASK_NOT_STARTED = 'Task not yet started';
         MESSAGE_TASK_NOT_RUNNING = 'Task not currently running';
-        MESSAGE_POLL_ATTEMPT_ON_DATA_QUEUE = 'Cannot poll from queue if taskEachDataCallback is set';
+        MESSAGE_POLL_ATTEMPT_ON_DATA_QUEUE = 'Cannot poll from queue if eachDataCallback is set';
         MESSAGE_SET_OUT_ARGS_COUNT_AFTER_START = 'Cannot set out args count after task has started';
         MESSAGE_AMBIGUOUS_OUT_ARGS_COUNT = ['Could not determine exact number of output arguments - ' ...
             'specify it explicitly by calling setOutArgsCount(count)'];

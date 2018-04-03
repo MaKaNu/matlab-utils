@@ -14,7 +14,7 @@ classdef AsyncTask < handle
     end
 
     properties
-        taskEachDataCallback;
+        eachDataCallback;
         taskDoneCallback;
         taskFailedCallback;
     end
@@ -123,9 +123,7 @@ classdef AsyncTask < handle
             obj.assertOutArgsCountSet();
             obj.initClientQueues();
             obj.workerJob = obj.startWorkerJob(varargin{:});
-            if isempty(obj.taskEachDataCallback)
-                obj.toWorkerQueue = obj.awaitToWorkerQueue();
-            end
+            obj.awaitToWorkerQueue();
         end
 
         function assertOutArgsCountSet(obj)
@@ -140,7 +138,7 @@ classdef AsyncTask < handle
         end
 
         function queue = createFromWorkerQueue(obj)
-            if isempty(obj.taskEachDataCallback)
+            if obj.isToWorkerQueuePollable()
                 queue = parallel.pool.PollableDataQueue;
             else
                 queue = parallel.pool.DataQueue;
@@ -152,7 +150,7 @@ classdef AsyncTask < handle
         function handleIncomingToWorkerQueue(obj, queue)
             obj.toWorkerQueue = queue;
             delete(obj.toWorkerQueueListener);
-            obj.fromWorkerQueue.afterEach(@obj.taskEachDataCallback);
+            obj.fromWorkerQueue.afterEach(@obj.eachDataCallback);
         end
 
         function queue = createSignalCatchQueue(obj)
@@ -215,11 +213,21 @@ classdef AsyncTask < handle
                 obj.outArgsCount, obj.signalCatchQueue, varargin{:});
         end
 
-        function toWorkerQueue = awaitToWorkerQueue(obj)
-            while obj.fromWorkerQueue.QueueLength == 0
-                pause(obj.AWAIT_WORKER_QUEUE_RETRY_SECONDS);
+        function awaitToWorkerQueue(obj)
+            if obj.isToWorkerQueuePollable()
+                while obj.fromWorkerQueue.QueueLength == 0
+                    pause(obj.AWAIT_WORKER_QUEUE_RETRY_SECONDS);
+                end
+                obj.toWorkerQueue = obj.fromWorkerQueue.poll();
+            else
+                while isempty(obj.toWorkerQueue)
+                    pause(obj.AWAIT_WORKER_QUEUE_RETRY_SECONDS);
+                end
             end
-            toWorkerQueue = obj.fromWorkerQueue.poll();
+        end
+
+        function pollable = isToWorkerQueuePollable(obj)
+            pollable = isempty(obj.eachDataCallback);
         end
 
         function cancelTask(obj)

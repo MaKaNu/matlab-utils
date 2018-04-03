@@ -4,7 +4,7 @@ classdef AsyncTaskBuilder < handle
         onStartFunction;
         onCancelFunction;
         onErrorFunction;
-        taskEachDataCallback;
+        eachDataCallback;
         taskDoneCallback;
         taskFailedCallback;
     end
@@ -23,8 +23,8 @@ classdef AsyncTaskBuilder < handle
             obj.onErrorFunction = onErrorFunction;
         end
 
-        function obj = onTaskEachData(obj, taskEachDataCallback)
-            obj.taskEachDataCallback = taskEachDataCallback;
+        function obj = onEachData(obj, eachDataCallback)
+            obj.eachDataCallback = eachDataCallback;
         end
 
         function obj = onTaskDone(obj, taskDoneCallback)
@@ -39,7 +39,7 @@ classdef AsyncTaskBuilder < handle
             worker = AsyncFunctionWorker(obj.onStartFunction, ...
                 obj.onCancelFunction, obj.onErrorFunction);
             asyncTask = AsyncTask.forWorker(worker);
-            asyncTask.taskEachDataCallback = obj.taskEachDataCallback;
+            asyncTask.eachDataCallback = obj.eachDataCallback;
             asyncTask.taskDoneCallback = obj.taskDoneCallback;
             asyncTask.taskFailedCallback = obj.taskFailedCallback;
         end
