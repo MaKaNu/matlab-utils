@@ -1,5 +1,17 @@
 classdef StockWorker < AsyncWorker
-    
+
+    properties (Constant)
+        pricesUpdateInterval = 60;
+        stockApiCallTimeout = 60;
+    end
+
+    properties
+        stockSymbol;
+        stockApiUrl;
+        stockPrices = [];
+        lastUpdateTimestamp = datetime - seconds(StockWorker.pricesUpdateInterval);
+    end
+
     methods
         function onStart(obj, stockSymbol)
             obj.stockSymbol = stockSymbol;
@@ -13,20 +25,14 @@ classdef StockWorker < AsyncWorker
         end
 
         function onCancel(obj)
-            obj.sendData(struct('message', ['Cancelled worker for stock: ' obj.stockSymbol]));
+            message = strcat('Cancelled worker for stock: ', obj.stockSymbol);
+            obj.sendData(struct('message', message));
         end
-    end
 
-    properties (Constant)
-        pricesUpdateInterval = 60;
-        stockApiCallTimeout = 60;
-    end
-
-    properties
-        stockSymbol;
-        stockApiUrl;
-        stockPrices = [];
-        lastUpdateTimestamp = datetime - seconds(StockWorker.pricesUpdateInterval);
+        function onError(obj, exception)
+            message = strcat('Most recent stock prices are:', sprintf('  %.4f', obj.stockPrices));
+            obj.sendData(struct('message', message));
+        end
     end
 
     methods (Access = private)

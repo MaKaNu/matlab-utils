@@ -17,7 +17,7 @@ function dispResult(result)
     if isfield(result, 'message')
         disp(result.message);
     else
-        resultString = '[%s] %s: potential volume for mean price %.4f$ and available cash %.2f$ is %d.';
+        resultString = '[%s] %s: potential volume for mean price %.4f$ and cash %.2f$ is %d.';
         disp(sprintf(resultString, result.timestamp, result.stockSymbol, ...
             result.meanPrice, result.availableCash, result.potentialVolume));
     end
