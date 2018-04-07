@@ -1,6 +1,6 @@
 task = AsyncTask.builder()...
-    .onStart(@backgroundStockFunction)...
-    .onCancel(@onCancelFun)...
+    .onStart(@startVolumeCalculator)...
+    .onCancel(@sendCancelMessage)...
     .onEachData(@dispResult)...
     .onTaskFailed(@dispException)...
     .build();
@@ -15,17 +15,17 @@ function executeTimeConsumingOps()
     pause(65);
 end
 
-function backgroundStockFunction(worker, stockSymbol)
+function startVolumeCalculator(worker, stockSymbol)
     initGlobals(stockSymbol);
     while true
         updatePricesIfMinutePassed();
         cutExcessivePrices();
-        handleIncomingData(worker);
+        handleClientRequests(worker);
         pause(1);
     end
 end
 
-function onCancelFun(worker)
+function sendCancelMessage(worker)
     worker.sendData(struct('message', ['Cancelled worker for stock: ' obj.stockSymbol]));
 end
 
@@ -109,7 +109,7 @@ function cutExcessivePrices()
     end
 end
 
-function handleIncomingData(worker)
+function handleClientRequests(worker)
     global stockPrices;
     global stockSymbol;
     while worker.isDataAvailable()
