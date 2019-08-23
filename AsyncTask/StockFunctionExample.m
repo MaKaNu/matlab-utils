@@ -4,6 +4,12 @@ task = AsyncTask.builder()...
     .onEachData(@dispResult)...
     .onTaskFailed(@dispException)...
     .build();
+prompt = 'Enter YOUR API-Key: '; 
+% You can get your own API key on this Website:
+% https://www.alphavantage.co/support/#api-key
+API_KEY = input(prompt,'s');
+setenv('STOCK_API_KEY',API_KEY)
+
 task.start('TWTR');
 
 while true
